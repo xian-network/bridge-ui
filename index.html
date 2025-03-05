@@ -25,44 +25,46 @@
         <div class="step active" id="step1">
             <div class="d-flex w-100">
                 <div class="input-group">
-                    <i data-lucide="layers"></i>
-                    <select id="from" onchange="validateBridgeSelection()">
-                        <option value="xian">From Xian</option>
-                        <option value="solana">From Solana</option>
+                    <img id="from-logo" src="assets/xian-logo.png" class="chain-logo" alt="From Chain Logo">
+                    <select id="from" onchange="updateChainLogos()">
+                        <option value="xian" data-logo="assets/xian-logo.png">From Xian</option>
+                        <option value="solana" data-logo="assets/solana-logo.png">From Solana</option>
                     </select>
                 </div>
             </div>
+            
             <div class="d-flex w-100 align-center mb-15">
                 <!-- Swap Button with Lucide "arrow-up-down" Icon -->
                 <button class="swap-arrow" onclick="swapChains()" aria-label="Swap Chains">
                     <i data-lucide="arrow-up-down"></i>
                 </button>
             </div>
+            
             <div class="d-flex w-100">
                 <div class="input-group">
-                    <i data-lucide="arrow-right-circle"></i>
-                    <select id="to" onchange="validateBridgeSelection()">
-                        <option value="solana">To Solana</option>
-                        <option value="xian">To Xian</option>
+                    <img id="to-logo" src="assets/solana-logo.png" class="chain-logo" alt="To Chain Logo">
+                    <select id="to" onchange="updateChainLogos()">
+                        <option value="solana" data-logo="assets/solana-logo.png">To Solana</option>
+                        <option value="xian" data-logo="assets/xian-logo.png">To Xian</option>
                     </select>
                 </div>
             </div>
+            
             <div class="nav-buttons">
                 <button class="button next-btn" onclick="nextStep(2)">Next</button>
             </div>
         </div>
         <div class="step" id="step2">
             <div class="d-flex w-100">
-            <div class="input-group">
-                <i data-lucide="coins"></i>
-                <select id="asset">
-                    <option value="XIAN">XIAN</option>
-                    <option value="SOL">SOL</option>
-                    <option value="USDC">USDC</option>
-                    <option value="USDT">USDT</option>
-                </select>
+                <div class="input-group">
+                    <img id="asset-logo" src="assets/xian-logo.png" class="asset-logo" alt="Asset Logo">
+                    <select id="asset" onchange="updateAssetLogo()">
+                        <option value="XIAN" data-logo="assets/xian-logo.png">XIAN</option>
+                        <option value="USDC" data-logo="assets/usdc-logo.png">USDC</option>
+                    </select>
+                </div>
             </div>
-            </div>
+            
             <div class="d-flex w-100">
                 <div class="input-group">
                     <i data-lucide="hash"></i>
@@ -83,7 +85,7 @@
             <button class="button" id="connect-wallet-xian" onclick="connectXianWallet()">Connect Wallet</button>
             <p>2. Connect your Solana wallet</p>
             <button class="button" id="connect-wallet-solana" onclick="connectPhantomWallet()">Connect Wallet</button>
-           
+            <p id="bridge-request-id-wrapper" style="display:none">Bridge Request ID: <span id="bridge-request-id">0</span></p>
             <div class="nav-buttons">
                 <button class="button prev-btn" onclick="nextStep(2)">Back</button>
                 

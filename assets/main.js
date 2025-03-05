@@ -60,7 +60,7 @@ function validateBridgeSelection() {
     let fromSelect = document.getElementById("from");
     let toSelect = document.getElementById("to");
 
-    // If both fields have the same value, reset "To" field
+    // Prevent selecting the same chain
     if (fromSelect.value === toSelect.value) {
         toSelect.value = fromSelect.value === "xian" ? "solana" : "xian"; // Auto-fix
     }
@@ -86,6 +86,31 @@ function updateToOptions() {
     });
 }
 
+
+function updateChainLogos() {
+    validateBridgeSelection();
+    
+    let fromSelect = document.getElementById("from");
+    let toSelect = document.getElementById("to");
+
+    let fromLogo = document.getElementById("from-logo");
+    let toLogo = document.getElementById("to-logo");
+
+    // Update logos based on selected option
+    fromLogo.src = fromSelect.options[fromSelect.selectedIndex].getAttribute("data-logo");
+    toLogo.src = toSelect.options[toSelect.selectedIndex].getAttribute("data-logo");
+
+    
+}
+
+function updateAssetLogo() {
+    let assetSelect = document.getElementById("asset");
+    let assetLogo = document.getElementById("asset-logo");
+
+    // Update asset logo based on selected option
+    assetLogo.src = assetSelect.options[assetSelect.selectedIndex].getAttribute("data-logo");
+}
+
 function swapChains() {
     let fromSelect = document.getElementById("from");
     let toSelect = document.getElementById("to");
@@ -95,9 +120,16 @@ function swapChains() {
     fromSelect.value = toSelect.value;
     toSelect.value = temp;
 
-    // Re-run validation
+    // Ensure they are not the same
+    if (fromSelect.value === toSelect.value) {
+        toSelect.value = fromSelect.value === "xian" ? "solana" : "xian"; // Auto-fix
+    }
+
+    // Update logos and validate selection
+    updateChainLogos();
     validateBridgeSelection();
 }
+
 
 
 function showToast(message, type = "success") {
@@ -183,7 +215,12 @@ async function connectPhantomWallet() {
 }
 
 function startBridge() {
-    document.getElementById('bridge-btn').innerText = 'Bridging...';
+    document.getElementById('bridge-request-id-wrapper').style.display = 'block';
+    document.getElementById('bridge-request-id').innerText = "1";
+    document.getElementById('bridge-btn').innerText = 'Sending..';
+    document.getElementById('bridge-btn').innerText = 'Sweeping..';
+    document.getElementById('bridge-btn').innerText = 'Transferring..';
+    document.getElementById('bridge-btn').innerText = 'Done!';
 }
 
 
