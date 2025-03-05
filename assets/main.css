@@ -345,9 +345,6 @@ body::after {
         font-size: 22px; /* Slightly smaller title */
         margin-top: 5rem;
     }
-    button#bridge-btn {
-        order: -1;
-    }
 
     .step-indicator {
         flex-direction: row; /* Keep steps in a row */
