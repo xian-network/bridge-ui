@@ -48,6 +48,11 @@
     align-items: center;
     animation: fadeIn 0.3s ease-in-out;
 }
+svg {
+    width: 32px;
+    height: 32px;
+    fill: #fff;
+}
 /* Improve error highlighting for the whole input group */
 .input-group {
     display: flex;
@@ -299,8 +304,8 @@ body::after {
 
 /* Style the Lucide icon */
 .swap-arrow svg {
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
     color: #ffffff; /* Make sure the icon is white */
     transition: color 0.2s ease-in-out;
 }
@@ -397,8 +402,8 @@ body::after {
 
 /* Chain & Asset Logos */
 .chain-logo, .asset-logo {
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
     margin-right: 10px;
     border-radius: 50%; /* Circular logos */
     object-fit: contain;
@@ -429,8 +434,8 @@ body::after {
 
 /* Lucide Icon for Swap Button */
 .swap-arrow i {
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
     color: #ffffff;
     transition: color 0.2s ease-in-out;
 }
