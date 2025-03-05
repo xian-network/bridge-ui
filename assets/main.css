@@ -325,18 +325,28 @@ body::after {
     margin-bottom: 15px;
 }
 
+.intro{
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
 /* Make container responsive */
 @media (max-width: 600px) {
     .container {
         width: 95%; /* Use more screen space */
         max-width: 400px; /* Prevent it from being too wide */
         padding: 20px;
+        min-height: 500px;
     }
     .wrapper {
          height: 100%;
     }
     .title {
         font-size: 22px; /* Slightly smaller title */
+        margin-top: 5rem;
+    }
+    button#bridge-btn {
+        order: -1;
     }
 
     .step-indicator {
