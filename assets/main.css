@@ -284,6 +284,47 @@ body::after {
     pointer-events: none;
 }
 
+/* Swap Arrow Button */
+.swap-arrow {
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    transition: transform 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+/* Style the Lucide icon */
+.swap-arrow svg {
+    width: 24px;
+    height: 24px;
+    color: #ffffff; /* Make sure the icon is white */
+    transition: color 0.2s ease-in-out;
+}
+
+/* Add rotation effect on hover */
+.swap-arrow:hover {
+    transform: rotate(180deg);
+}
+
+.swap-arrow:hover i {
+    color: #ff00ff; /* Change color on hover */
+}
+
+/* Ensure dropdowns and button are aligned properly */
+.align-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; /* Adds space between elements */
+}
+
+.mb-15 {
+    margin-bottom: 15px;
+}
+
 /* Make container responsive */
 @media (max-width: 600px) {
     .container {

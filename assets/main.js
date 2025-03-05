@@ -86,6 +86,20 @@ function updateToOptions() {
     });
 }
 
+function swapChains() {
+    let fromSelect = document.getElementById("from");
+    let toSelect = document.getElementById("to");
+
+    // Swap values
+    let temp = fromSelect.value;
+    fromSelect.value = toSelect.value;
+    toSelect.value = temp;
+
+    // Re-run validation
+    validateBridgeSelection();
+}
+
+
 function showToast(message, type = "success") {
     const toastContainer = document.getElementById("toastContainer");
 
