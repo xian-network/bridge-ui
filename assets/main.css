@@ -1,0 +1,343 @@
+
+.container {
+    background: #1a1a1a;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 6px 30px rgba(0, 0, 0, 0.6);
+    width: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeIn 0.5s ease-in-out;
+    min-height: 420px;
+    transition: min-height 0.3s ease;
+    position: relative;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.step-indicator {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 20px;
+}
+.step-indicator div {
+    flex: 1;
+    padding: 10px;
+    border-bottom: 3px solid #444;
+    text-align: center;
+    font-size: 14px;
+    color: #888;
+    transition: border-color 0.3s, color 0.3s;
+}
+.step-indicator .active {
+    border-bottom: 3px solid #ff00ff;
+    color: #fff;
+}
+.step {
+    display: none;
+    width: 100%;
+    flex-grow: 1; /* Makes sure content takes available space */
+    flex-direction: column;
+}
+.step.active {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: fadeIn 0.3s ease-in-out;
+}
+/* Improve error highlighting for the whole input group */
+.input-group {
+    display: flex;
+    align-items: center;
+    background: #292929;
+    border-radius: 10px;
+    padding: 12px 15px;
+    margin-bottom: 15px;
+    width: 100%;
+    position: relative; /* Needed for absolute positioning of error text */
+    border: 2px solid transparent; /* Default border */
+    transition: border 0.3s ease-in-out, background 0.3s ease-in-out;
+}
+
+/* When there's an error, highlight the whole input-group */
+.input-group.error {
+    border: 2px solid #ff4d4d !important;
+    background: rgba(255, 0, 0, 0.15);
+}
+
+/* Make the icon red in case of an error */
+.input-group.error i {
+    color: #ff4d4d !important;
+}
+
+/* Style input inside the input-group */
+.input-group input {
+    flex: 1;
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: #fff;
+    outline: none;
+}
+
+/* Error message positioned correctly below input */
+.error-message {
+    color: #ff4d4d;
+    font-size: 13px;
+    position: absolute;
+    bottom: -40px; /* Ensures it doesn't disrupt layout */
+    left: 12px;
+    display: none;
+}
+
+.input-group i {
+    margin-right: 12px;
+    color: #bbb;
+}
+
+
+select, input {
+    flex: 1;
+    padding: 10px;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: #fff;
+    outline: none;
+}
+select option {
+    background: #1a1a1a;
+    color: #fff;
+}
+.nav-buttons {
+    margin-top: auto; /* Pushes nav-buttons to the bottom */
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    gap: 10px;
+}
+.button {
+    background: linear-gradient(45deg, #ff00ff, #0088ff);
+    border: none;
+    padding: 14px 24px;
+    font-size: 18px;
+    color: white;
+    cursor: pointer;
+    border-radius: 12px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+.button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(255, 0, 255, 0.3);
+}
+.d-flex {
+    display: flex;
+}
+.w-100 {
+    width: 100%;
+}
+#step1 .next-btn {
+    width: 100%;
+}
+.next-btn, .prev-btn, .bridge-btn {
+    flex: 1; /* Make buttons equal width */
+    text-align: center;
+}
+body {
+    font-family: 'Inter', sans-serif;
+    background: radial-gradient(circle at top, #141414, #0d0d0d);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    text-align: center;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Subtle animated neon blur effect */
+body::before {
+    content: "";
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    background: rgba(255, 0, 255, 0.3);
+    filter: blur(120px);
+    top: 20%;
+    left: 10%;
+    animation: moveBlur 8s infinite alternate ease-in-out;
+}
+
+body::after {
+    content: "";
+    position: absolute;
+    width: 250px;
+    height: 250px;
+    background: rgba(0, 136, 255, 0.3);
+    filter: blur(100px);
+    bottom: 15%;
+    right: 10%;
+    animation: moveBlur 10s infinite alternate ease-in-out;
+}
+
+/* Keyframes for smooth background animation */
+@keyframes moveBlur {
+    from {
+        transform: translateY(-20px);
+    }
+    to {
+        transform: translateY(20px);
+    }
+}
+
+/* Centering the content */
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 10;
+}
+
+/* Modern Title Styling */
+.title {
+    text-align: center;
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: 4.5px;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(255, 0, 255, 0.6), 0 0 20px rgba(0, 136, 255, 0.4);
+    margin-bottom: 20px;
+    text-transform: uppercase;
+}
+
+
+/* Toast Container */
+#toastContainer {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Toast Base */
+.toast {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-radius: 8px;
+    min-width: 250px;
+    max-width: 350px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Success Toast */
+.toast-success {
+    background-color: #28a745;
+    color: white;
+}
+
+/* Error Toast */
+.toast-error {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* Toast Icon */
+.toast i {
+    margin-right: 10px;
+}
+
+/* Fade-in class */
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Fade-out class */
+.toast.hide {
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Make container responsive */
+@media (max-width: 600px) {
+    .container {
+        width: 95%; /* Use more screen space */
+        max-width: 400px; /* Prevent it from being too wide */
+        padding: 20px;
+    }
+    .wrapper {
+         height: 100%;
+    }
+    .title {
+        font-size: 22px; /* Slightly smaller title */
+    }
+
+    .step-indicator {
+        flex-direction: row; /* Keep steps in a row */
+        flex-wrap: wrap; /* Allow wrapping if needed */
+        gap: 5px;
+    }
+
+    .step-indicator div {
+        padding: 8px;
+        font-size: 12px;
+        flex: 1; /* Distribute space evenly */
+        min-width: 80px; /* Prevent text from breaking */
+    }
+
+    .input-group {
+        flex-direction: row; /* Keep inputs inline */
+        align-items: center;
+        padding: 12px;
+    }
+
+    .input-group i {
+        margin: 0 10px 0 0; /* Ensure spacing between icon and input */
+    }
+
+    select, input {
+        font-size: 16px; /* Maintain readability */
+        padding: 10px;
+        width: 100%; /* Use full width */
+    }
+
+    .nav-buttons {
+        flex-direction: column; /* Stack buttons */
+        gap: 10px;
+    }
+
+    .button {
+        padding: 14px 20px; /* Keep buttons large for easy tap */
+        font-size: 18px;
+        width: 100%;
+    }
+    .input-group.error{
+        margin-bottom: 40px;
+    }
+}

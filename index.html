@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xian Bridge</title>
+    <meta name="author" content="Xian">
+    <meta name="description" content="Bridge between Solana and Xian">
+    <meta name="keywords" content="Solana, Xian, Bridge">
+    <link rel="icon" href="logo.png" type="image/png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="assets/main.css">
+</head>
+<body>
+    <div id="toastContainer"></div>
+    <div class="wrapper">
+    <h1 class="title">Xian Bridge</h1>
+    <div class="container">
+        <div class="step-indicator">
+            <div id="indicator1" class="active">Select Chains</div>
+            <div id="indicator2">Token</div>
+            <div id="indicator3">Bridge Request</div>
+        </div>
+        <div class="step active" id="step1">
+            <div class="d-flex w-100">
+                <div class="input-group">
+                    <i data-lucide="layers"></i>
+                    <select id="from" onchange="validateBridgeSelection()">
+                        <option value="xian">From Xian</option>
+                        <option value="solana">From Solana</option>
+                    </select>
+                </div>
+            </div>
+            <div class="d-flex w-100">
+                <div class="input-group">
+                    <i data-lucide="arrow-right-circle"></i>
+                    <select id="to" onchange="validateBridgeSelection()">
+                        <option value="solana">To Solana</option>
+                        <option value="xian">To Xian</option>
+                    </select>
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <button class="button next-btn" onclick="nextStep(2)">Next</button>
+            </div>
+        </div>
+        <div class="step" id="step2">
+            <div class="d-flex w-100">
+            <div class="input-group">
+                <i data-lucide="coins"></i>
+                <select id="asset">
+                    <option value="XIAN">XIAN</option>
+                    <option value="SOL">SOL</option>
+                    <option value="USDC">USDC</option>
+                    <option value="USDT">USDT</option>
+                </select>
+            </div>
+            </div>
+            <div class="d-flex w-100">
+                <div class="input-group">
+                    <i data-lucide="hash"></i>
+                    <input type="text" id="amount" autocomplete="off" placeholder="Enter amount" oninput="validateAmount(this)">
+                    <p class="error-message">Enter a valid amount</p>
+                </div>
+                
+            </div>
+            <div class="nav-buttons">
+                <button class="button prev-btn" onclick="nextStep(1)">Back</button>
+                <button class="button next-btn" onclick="nextStep(3)">Next</button>
+            </div>
+        </div>
+        <div class="step" id="step3">
+            <p>To bridge <span id="amount-bridge"></span> <span id="asset-bridge"></span> from <span id="from-bridge"></span> to <span id="to-bridge"></span></p>
+            
+            <p>1. Connect your Xian wallet</p>
+            <button class="button" id="connect-wallet-xian" onclick="connectXianWallet()">Connect Wallet</button>
+            <p>2. Connect your Solana wallet</p>
+            <button class="button" id="connect-wallet-solana" onclick="connectPhantomWallet()">Connect Wallet</button>
+           
+            <div class="nav-buttons">
+                <button class="button prev-btn" onclick="nextStep(2)">Back</button>
+                
+                <button class="button next-btn disabled" id="bridge-btn" onclick="startBridge()" disabled>Bridge</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="assets/dapp.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.75.0/lib/index.iife.min.js"></script>
+<script>
+    window.solanaWeb3 = solanaWeb3; // Attach to global scope
+</script>
+    <script>
+        lucide.createIcons();
+        XianWalletUtils.init("https://node.xian.org");
+
+    </script>
+    
+    <script src="assets/main.js"></script>
+</body>
+</html>
