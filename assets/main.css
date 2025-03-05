@@ -538,7 +538,7 @@ body::after {
     .nav-toggle {
         display: block;
         position: fixed;
-        top: 12px;
+        top: 19px;
         right: 20px; /* Moves it away from the logo */
         background: none;
         border: none;
