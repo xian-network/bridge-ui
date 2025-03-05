@@ -256,6 +256,24 @@ function nextStep(step) {
     document.getElementById(`step${step}`).classList.add('active');
     document.getElementById(`indicator${step}`).classList.add('active');
 }
+function toggleNav() {
+    document.querySelector('.vertical-text-nav').classList.toggle('open');
+}
+
+function navigateTo(section) {
+    console.log("Navigating to:", section);
+
+    // Remove active class from all items
+    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+
+    // Set active class on clicked item
+    event.currentTarget.classList.add('active');
+
+    // Close menu after selection on mobile
+    document.querySelector('.vertical-text-nav').classList.remove('open');
+}
+
+
 
 // Run this on page load to ensure options are correct
 document.addEventListener("DOMContentLoaded", function() {
