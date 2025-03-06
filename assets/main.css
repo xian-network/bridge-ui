@@ -86,11 +86,14 @@ svg {
     font-weight: 500; /* Keep same weight */
     color: white;
     cursor: pointer;
+    text-decoration: none;
     border-radius: 12px;
     letter-spacing: 0.5px;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-
+.message{
+    flex:1;
+}
 .button-primary:hover {
     transform: scale(1.05);
     box-shadow: 0 4px 15px rgba(255, 0, 255, 0.3);
@@ -102,6 +105,7 @@ svg {
     background: #222222; /* Dark grey */
     border: 2px solid rgba(255, 255, 255, 0.3);
     color: white;
+    text-decoration: none;
     padding: 12px 20px;
     font-size: 16px;
     font-weight: 500;

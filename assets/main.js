@@ -220,6 +220,13 @@ function startBridge() {
     document.getElementById('bridge-btn').innerText = 'Transferring..';
     document.getElementById('bridge-btn').innerText = 'Done!';
     document.getElementById('bridge-btn').classList.add('disabled');
+
+    document.getElementById('step3').innerHTML = `
+        <p class="intro">Bridging complete!</p>
+        <p class="message">Your assets have been successfully bridged from ` + capitalize(document.getElementById('from').value) + ` to ` + capitalize(document.getElementById('to').value) + `.</p>
+        <a href="#" class="button-primary mb-15" onclick="window.location.reload()">View transaction</a>
+        <a href="#" class="button-secondary" onclick="window.location.reload()">Start a new bridge request</a>
+        `;
 }
 
 
