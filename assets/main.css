@@ -449,7 +449,8 @@ body::after {
     color: rgba(255, 255, 255, 0.8);
 }
 #bridge-status-container{
-    margin-bottom: 1em;
+    margin-top: auto;
+    margin-bottom: auto;
 }
 
 /* Make container responsive */
