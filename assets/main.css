@@ -404,7 +404,6 @@ body::after {
     display: flex;
     flex-direction: column;
     gap: 15px;
-    width: 100%;
     max-width: 400px;
     margin: 0 auto;
     background: #222;
