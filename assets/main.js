@@ -221,6 +221,7 @@ function startBridge() {
     document.getElementById('bridge-btn').innerText = 'Sweeping..';
     document.getElementById('bridge-btn').innerText = 'Transferring..';
     document.getElementById('bridge-btn').innerText = 'Done!';
+    document.getElementById('bridge-btn').classList.add('disabled');
 }
 
 
