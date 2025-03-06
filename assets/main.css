@@ -523,32 +523,42 @@ body::after {
 
 
     .vertical-text-nav {
-        top: 20px;
-        left: 10px;
-        flex-direction: column;
-        gap: 0px;
-    }
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        /* A single row with centered items */
+        display: flex;
+        align-items: center;
+        /* Some padding for breathing room */
+        padding: 10px 16px;
+        gap: 10px;
+        /* This background ensures the nav is visible */
+        background: #141414;
+        /* Keep it above other elements */
+        z-index: 200;
+      }
 
     /* Adjust the position of the logo for mobile */
     .nav-logo img {
         width: 32px;
+
+        height: auto;
     }
 
     /* Fix the Hamburger Menu Button */
-    .nav-toggle {
-        display: block;
-        position: fixed;
-        top: 19px;
-        right: 20px; /* Moves it away from the logo */
-        background: none;
-        border: none;
-        color: white;
-        font-size: 32px; /* Larger for easy tapping */
-        cursor: pointer;
-        text-transform: uppercase;
-        z-index: 200;
-        padding: 10px;
-    }
+    /* The hamburger is now just "in flow" with the logo */
+  .nav-toggle {
+    position: static;     /* remove the previously fixed positioning */
+    margin-left: auto;    /* pushes the icon to the right */
+    font-size: 32px;      
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    padding: 10px;
+    display: flex;
+  }
 
     /* Mobile Nav Menu (Hidden by Default) */
     .nav-links {
@@ -557,14 +567,12 @@ body::after {
         left: -100%;
         width: 220px;
         height: 100vh;
-        background: rgba(20, 20, 20, 0.95);
         display: flex;
         flex-direction: column;
         padding: 20px;
         gap: 15px;
         transition: left 0.3s ease-in-out;
-    }
-
+      }
     /* Slide-In Effect */
     .vertical-text-nav.open .nav-links {
         left: 0;
