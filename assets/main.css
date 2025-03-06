@@ -77,6 +77,67 @@ svg {
 .input-group.error i {
     color: #ff4d4d !important;
 }
+/* 🔹 Primary Button - Neon Purple */
+.button-primary {
+    background: linear-gradient(45deg, #ff00ff, #0088ff);
+    border: none;
+    padding: 14px 24px;
+    font-size: 18px;
+    font-weight: 500; /* Keep same weight */
+    color: white;
+    cursor: pointer;
+    border-radius: 12px;
+    letter-spacing: 0.5px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.button-primary:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(255, 0, 255, 0.3);
+}
+
+
+/* 🔹 Secondary Button - Minimalist Dark Grey */
+.button-secondary {
+    background: #222222; /* Dark grey */
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: 500;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+.button-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+/* 🔹 Disabled Buttons */
+.button-primary:disabled,
+.button-secondary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* 🔹 Wallet Buttons (Compact, Centered) */
+.wallet-connect .button-secondary {
+    width: auto; /* Only as wide as the text */
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.wallet-connect i {
+    color: #bbb;
+    font-size: 18px;
+}
+
 
 /* Style input inside the input-group */
 .input-group input {
@@ -517,6 +578,58 @@ body::after {
 .nav-toggle {
     display: none;
 }
+
+/* 🔹 Confirmation Box (Matches Input Fields) */
+.confirmation-box {
+    background: #292929;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.confirm-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 16px;
+    padding: 8px 0;
+}
+
+.confirm-item img {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    margin: 0 8px;
+}
+
+/* 🔹 Wallet Connection Section */
+.wallet-section {
+    text-align: left;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.wallet-connect {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #292929;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.wallet-connect i {
+    margin-right: 10px;
+    color: #bbb;
+}
+
+.wallet-connect .button {
+    flex: 1;
+    text-align: center;
+}
+
 
 /* Mobile-Specific Navigation */
 @media (max-width: 600px) {

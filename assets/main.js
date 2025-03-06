@@ -215,8 +215,6 @@ async function connectPhantomWallet() {
 }
 
 function startBridge() {
-    document.getElementById('bridge-request-id-wrapper').style.display = 'block';
-    document.getElementById('bridge-request-id').innerText = "1";
     document.getElementById('bridge-btn').innerText = 'Sending..';
     document.getElementById('bridge-btn').innerText = 'Sweeping..';
     document.getElementById('bridge-btn').innerText = 'Transferring..';
@@ -256,6 +254,10 @@ function nextStep(step) {
     document.querySelectorAll('.step-indicator div').forEach(el => el.classList.remove('active'));
     document.getElementById(`step${step}`).classList.add('active');
     document.getElementById(`indicator${step}`).classList.add('active');
+    if(step === 2) {
+        // Make the amount active so the user can enter the amount
+        document.getElementById('amount').focus();
+    }
 }
 function toggleNav() {
     document.querySelector('.vertical-text-nav').classList.toggle('open');

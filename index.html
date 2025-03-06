@@ -69,7 +69,7 @@
             </div>
             
             <div class="nav-buttons">
-                <button class="button next-btn" onclick="nextStep(2)">Next</button>
+                <button class="button-primary next-btn" onclick="nextStep(2)">Next</button>
             </div>
         </div>
         <div class="step" id="step2">
@@ -91,24 +91,49 @@
                 
             </div>
             <div class="nav-buttons">
-                <button class="button prev-btn" onclick="nextStep(1)">Back</button>
-                <button class="button next-btn" onclick="nextStep(3)">Next</button>
+                <button class="button-secondary prev-btn" onclick="nextStep(1)">Back</button>
+                <button class="button-primary next-btn" onclick="nextStep(3)">Next</button>
             </div>
         </div>
         <div class="step" id="step3">
-            <p class="intro">To bridge <span id="amount-bridge"></span> <span id="asset-bridge"></span> from <span id="from-bridge"></span> to <span id="to-bridge"></span></p>
-            
-            <p>1. Connect your Xian wallet</p>
-            <button class="button" id="connect-wallet-xian" onclick="connectXianWallet()">Connect Wallet</button>
-            <p>2. Connect your Solana wallet</p>
-            <button class="button" id="connect-wallet-solana" onclick="connectPhantomWallet()">Connect Wallet</button>
-            <p id="bridge-request-id-wrapper" style="display:none">Bridge Request ID: <span id="bridge-request-id">0</span></p>
+            <p class="intro">
+                Confirm your bridge transaction:
+            </p>
+            <div class="w-100">
+            <div class="confirmation-box">
+                <div class="confirm-item">
+                    <span>From:</span>
+                    <span id="from-bridge"></span>
+                </div>
+                <div class="confirm-item">
+                    <span>To:</span>
+                    <span id="to-bridge"></span>
+                </div>
+                <div class="confirm-item">
+                    <span>Amount:</span>
+                    <span><span id="amount-bridge"></span> <span id="asset-bridge"></span></span>
+                    
+                </div>
+            </div></div>
+        
+            <div class="wallet-section">
+                <p>Connect your Xian Wallet</p>
+                <div class="wallet-connect">
+                    <button class="button-secondary" id="connect-wallet-xian" onclick="connectXianWallet()">Connect Wallet</button>
+                </div>
+        
+                <p>Connect your Solana Wallet</p>
+                <div class="wallet-connect">
+                    <button class="button-secondary" id="connect-wallet-solana" onclick="connectPhantomWallet()">Connect Wallet</button>
+                </div>
+            </div>
+        
             <div class="nav-buttons">
-                <button class="button prev-btn" onclick="nextStep(2)">Back</button>
-                
-                <button class="button next-btn disabled" id="bridge-btn" onclick="startBridge()" disabled>Bridge</button>
+                <button class="button-secondary prev-btn" onclick="nextStep(2)">Back</button>
+                <button class="button-primary next-btn disabled" id="bridge-btn" onclick="startBridge()" disabled>Bridge</button>
             </div>
         </div>
+        
     </div>
 </div>
 <script src="assets/dapp.js"></script>
