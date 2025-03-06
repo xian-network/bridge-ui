@@ -533,8 +533,6 @@ body::after {
         /* Some padding for breathing room */
         padding: 10px 16px;
         gap: 10px;
-        /* This background ensures the nav is visible */
-        background: #141414;
         /* Keep it above other elements */
         z-index: 200;
       }
