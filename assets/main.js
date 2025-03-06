@@ -234,6 +234,7 @@ async function startBridge() {
         updateBridgeStatus("status-done");
 
         showToast("Bridge completed successfully!", "success");
+        document.getElementById("tx-url").style.display = "block";
 
     } catch (error) {
         showToast("Bridge failed. Please try again.", "error");
@@ -288,6 +289,7 @@ function nextStep(step) {
     }
      // If moving to Step 4, start bridge process
      if (step === 4) {
+        document.getElementById('tx-url').style.display = 'none';
         startBridge();
     }
 }
