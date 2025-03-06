@@ -36,9 +36,10 @@
     <h1 class="title">Bridge</h1>
     <div class="container">
         <div class="step-indicator">
-            <div id="indicator1" class="active">Select Chains</div>
+            <div id="indicator1" class="active">Chains</div>
             <div id="indicator2">Token</div>
-            <div id="indicator3">Bridge Request</div>
+            <div id="indicator3">Confirm</div>
+            <div id="indicator4">Bridging</div>
         </div>
         <div class="step active" id="step1">
             <div class="d-flex w-100">
@@ -130,9 +131,39 @@
         
             <div class="nav-buttons">
                 <button class="button-secondary prev-btn" onclick="nextStep(2)">Back</button>
-                <button class="button-primary next-btn disabled" id="bridge-btn" onclick="startBridge()" disabled>Bridge</button>
+                <button class="button-primary next-btn disabled" id="bridge-btn" onclick="nextStep(4)" disabled>Bridge</button>
             </div>
         </div>
+        <div class="step" id="step4">
+            <p class="intro">Bridge in Progress</p>
+
+            <div id="bridge-status-container">
+                <div class="bridge-status">
+                    <div class="status-item" id="status-sending">
+                        <div class="status-icon"></div>
+                        <p><strong>Sending:</strong> Awaiting user deposit...</p>
+                    </div>
+                    <div class="status-item" id="status-sweeping">
+                        <div class="status-icon"></div>
+                        <p><strong>Sweeping:</strong> Bridge operator moving funds...</p>
+                    </div>
+                    <div class="status-item" id="status-transferring">
+                        <div class="status-icon"></div>
+                        <p><strong>Transferring:</strong> Assets are being sent to the destination...</p>
+                    </div>
+                    <div class="status-item" id="status-done">
+                        <div class="status-icon"></div>
+                        <p><strong>Done:</strong> Your funds have arrived!</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                
+                <button class="button-secondary w-100" onclick="window.location.reload()">Start a New Bridge</button>
+            </div>
+        </div>
+        
         
     </div>
 </div>

@@ -213,21 +213,42 @@ async function connectPhantomWallet() {
         showToast("Failed to connect to Phantom Wallet", "error");
     }
 }
+async function startBridge() {
+    const bridgeBtn = document.getElementById("bridge-btn");
+    bridgeBtn.classList.add("disabled");
+    bridgeBtn.innerText = "Processing...";
 
-function startBridge() {
-    document.getElementById('bridge-btn').innerText = 'Sending..';
-    document.getElementById('bridge-btn').innerText = 'Sweeping..';
-    document.getElementById('bridge-btn').innerText = 'Transferring..';
-    document.getElementById('bridge-btn').innerText = 'Done!';
-    document.getElementById('bridge-btn').classList.add('disabled');
+    try {
+        updateBridgeStatus("status-sending");
 
-    document.getElementById('step3').innerHTML = `
-        <p class="intro">Bridging complete!</p>
-        <p class="message">Your assets have been successfully bridged from ` + capitalize(document.getElementById('from').value) + ` to ` + capitalize(document.getElementById('to').value) + `.</p>
-        <a href="#" class="button-primary mb-15" onclick="window.location.reload()">View transaction</a>
-        <a href="#" class="button-secondary" onclick="window.location.reload()">Start a new bridge request</a>
-        `;
+        // Step 1: User Sends Funds
+        await simulateDelay(2000);
+        updateBridgeStatus("status-sweeping");
+
+        // Step 2: Sweeping Funds
+        await simulateDelay(3000);
+        updateBridgeStatus("status-transferring");
+
+        // Step 3: Transferring Funds
+        await simulateDelay(2500);
+        updateBridgeStatus("status-done");
+
+        showToast("Bridge completed successfully!", "success");
+
+    } catch (error) {
+        showToast("Bridge failed. Please try again.", "error");
+    }
 }
+
+function updateBridgeStatus(stepId) {
+    document.querySelectorAll(".status-item").forEach(step => step.classList.remove("active"));
+    document.getElementById(stepId).classList.add("active");
+}
+
+function simulateDelay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 
 
 function nextStep(step) {
@@ -264,6 +285,10 @@ function nextStep(step) {
     if(step === 2) {
         // Make the amount active so the user can enter the amount
         document.getElementById('amount').focus();
+    }
+     // If moving to Step 4, start bridge process
+     if (step === 4) {
+        startBridge();
     }
 }
 function toggleNav() {
