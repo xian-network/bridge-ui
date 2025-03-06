@@ -570,6 +570,7 @@ body::after {
         padding: 20px;
         gap: 15px;
         transition: left 0.3s ease-in-out;
+        background: #1a1a1a;
       }
     /* Slide-In Effect */
     .vertical-text-nav.open .nav-links {
