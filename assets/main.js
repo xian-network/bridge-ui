@@ -220,18 +220,83 @@ async function connectPhantomWallet() {
         showToast("Failed to connect to Phantom Wallet", "error");
     }
 }
+
+function createSPLTokenTransferInstruction(
+    sourcePubkey,
+    destinationPubkey,
+    ownerPubkey,
+    amount // BigInt or number
+  ) {
+    // 1 byte for the instruction (3 = Transfer), plus 8 bytes for the amount in little-endian
+    const data = new Uint8Array(1 + 8);
+  
+    // Instruction code "3" = Transfer in the SPL Token Program
+    data[0] = 3;
+  
+    // Convert "amount" to BigInt if it's not already
+    const amountBI = typeof amount === 'bigint' ? amount : BigInt(amount);
+  
+    // Write the amount in little-endian using DataView
+    const dataView = new DataView(data.buffer);
+    dataView.setBigUint64(1, amountBI, true); // littleEndian = true
+  
+    return new solanaWeb3.TransactionInstruction({
+      keys: [
+        { pubkey: sourcePubkey,      isSigner: false, isWritable: true },
+        { pubkey: destinationPubkey, isSigner: false, isWritable: true },
+        { pubkey: ownerPubkey,       isSigner: true,  isWritable: false },
+      ],
+      programId: new solanaWeb3.PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"), // SPL Token Program
+      data, // data is your Uint8Array
+    });
+  }
+
 async function findAssociatedTokenAddress(walletAddress, tokenMintAddress) {
-    return (
-        await solanaWeb3.PublicKey.findProgramAddress(
-            [
-                walletAddress.toBuffer(),
-                new solanaWeb3.PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA").toBuffer(), // SPL Token Program ID
-                tokenMintAddress.toBuffer(),
-            ],
-            new solanaWeb3.PublicKey("ATokenGPnLK5ZmQxczpxzEJt9WZ9odWWwRysqi6v5tXN") // Associated Token Account Program ID
-        )
-    )[0];
-}
+    // OPTIONAL sanity check (proper syntax):
+    if (typeof walletAddress !== "object" || typeof tokenMintAddress !== "object") {
+      console.warn("walletAddress or tokenMintAddress is not an object");
+      return null; // or throw an error
+    }
+  
+    // Now find the ATA
+    const [pda] = await solanaWeb3.PublicKey.findProgramAddress(
+      [
+        walletAddress.toBuffer(),
+        new solanaWeb3.PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA").toBuffer(), // SPL Token Program ID
+        tokenMintAddress.toBuffer(),
+      ],
+      new solanaWeb3.PublicKey("ATokenGPnLK5ZmQxczpxzEJt9WZ9odWWwRysqi6v5tXN") // ATA Program ID
+    );
+    return pda;
+  }
+
+  async function fetchLatestBlockhash(rpcUrl, commitment = "finalized") {
+    const requestBody = {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "getLatestBlockhash",
+      params: [
+        {
+          commitment
+        }
+      ]
+    };
+  
+    const response = await fetch(rpcUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(requestBody)
+    });
+  
+    const json = await response.json();
+    if (json.error) {
+      throw new Error("Failed to fetch blockhash: " + json.error.message);
+    }
+  
+    // json.result.value => { blockhash: string, lastValidBlockHeight: number }
+    return json.result.value;
+  }
+  
 
 async function startBridge() {
     const bridgeBtn = document.getElementById("bridge-btn");
@@ -239,63 +304,59 @@ async function startBridge() {
     bridgeBtn.innerText = "Processing...";
 
     if (route === 'solana_to_xian') {
-        // Send request to API to get deposit address
-        // Trigger Phantom Wallet to send amount of asset to deposit address
         updateBridgeStatus("status-sending");
 
-            // ✅ Fetch token details (address + decimals)
-            let tokenDetails = token_contracts[asset]["solana"];
-            let tokenMintAddress = tokenDetails["token_address"];
-            let decimals = tokenDetails["decimals"];
+        // ✅ Fetch token details (address + decimals)
+        let tokenDetails = token_contracts[asset]["solana"];
+        let tokenMintAddress = tokenDetails["token_address"];
+        let decimals = tokenDetails["decimals"];
 
-            let depositAddress = await solanaToXianRequest(tokenMintAddress, amount, xianAddress);
-            if (!depositAddress) {
-                showToast("Failed to get deposit address. Please try again later.", "error");
-                return;
-            }
+        let depositAddress = await solanaToXianRequest(tokenMintAddress, amount, xianAddress);
+        if (!depositAddress) {
+            showToast("Failed to get deposit address. Please try again later.", "error");
+            return;
+        }
 
-            const provider = window.solana;
-            const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('mainnet-beta'));
+        const provider = window.solana;
+        if (!provider || !provider.isPhantom) {
+            showToast("Phantom Wallet not detected!", "error");
+            return;
+        }
 
-            const sender = provider.publicKey;
-            const receiver = new solanaWeb3.PublicKey(depositAddress);
-            const tokenMint = new solanaWeb3.PublicKey(tokenMintAddress); // ✅ Supports multiple tokens
+        const connection = new solanaWeb3.Connection("https://solana.drpc.org");
 
-            // ✅ Find sender's and receiver's associated token accounts dynamically
-            const senderTokenAccount = await findAssociatedTokenAddress(sender, tokenMint);
-            const receiverTokenAccount = await findAssociatedTokenAddress(receiver, tokenMint);
+        const sender = new solanaWeb3.PublicKey(solanaAddress);
+        const receiver = new solanaWeb3.PublicKey(depositAddress);
+        const tokenMint = new solanaWeb3.PublicKey(tokenMintAddress); // ✅ Supports multiple tokens
 
-            // Ensure receiver token account exists
-            const receiverAccountInfo = await connection.getAccountInfo(receiverTokenAccount);
-            if (!receiverAccountInfo) {
-                showToast("Receiver does not have a token account for " + asset + ".", "error");
-                return;
-            }
 
-            // ✅ Scale the amount according to token decimals
-            let scaledAmount = BigInt(Math.floor(parseFloat(amount) * 10 ** decimals));
+        // ✅ Find sender's and receiver's associated token accounts dynamically
+        const senderTokenAccount = await findAssociatedTokenAddress(sender, tokenMint);
+        const receiverTokenAccount = await findAssociatedTokenAddress(receiver, tokenMint);
 
-            // ✅ Create a dynamic token transfer transaction
-            const transaction = new solanaWeb3.Transaction().add(
-                new solanaWeb3.TransactionInstruction({
-                    programId: new solanaWeb3.PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"), // SPL Token Program
-                    keys: [
-                        { pubkey: senderTokenAccount, isSigner: false, isWritable: true },
-                        { pubkey: receiverTokenAccount, isSigner: false, isWritable: true },
-                        { pubkey: sender, isSigner: true, isWritable: false },
-                    ],
-                    data: Buffer.from(Uint8Array.of(3, ...new BN(scaledAmount).toArray("le", 8))), // ✅ Convert based on decimals
-                })
-            );
+        // ✅ Scale the amount according to token decimals
+        let scaledAmount = BigInt(Math.floor(parseFloat(amount) * 10 ** decimals));
 
-            // Fetch latest blockhash
-            transaction.feePayer = sender;
-            transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+        // ✅ Create a dynamic token transfer transaction
+        const transaction = new solanaWeb3.Transaction().add(
+            createSPLTokenTransferInstruction(
+              senderTokenAccount,
+              receiverTokenAccount,
+              sender,       // wallet's PublicKey
+              scaledAmount  // BigInt or number
+            )
+          );
 
-            // Sign and send the transaction
-            const signedTransaction = await provider.signTransaction(transaction);
-            const signature = await connection.sendRawTransaction(signedTransaction.serialize());
-            await connection.confirmTransaction(signature);
+        transaction.feePayer = sender; // ✅ Set the fee payer to the sender's address
+        const { blockhash } = await fetchLatestBlockhash("https://solana.drpc.org");
+        transaction.recentBlockhash = blockhash;
+
+        // ✅ Explicitly Request Phantom Wallet to Sign the Transaction
+        showToast("Please approve the transaction in your Phantom Wallet.", "info");
+
+        const signedTransaction = await provider.signTransaction(transaction);
+        const signature = await connection.sendRawTransaction(signedTransaction.serialize());
+        await connection.confirmTransaction(signature, "confirmed");
         // Now we keep monitoring the bridge status
 
     }
