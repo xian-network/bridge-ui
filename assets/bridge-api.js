@@ -24,7 +24,7 @@ async function solanaToXianRequest(tokenContract, tokenAmount, xianAddress) {
     }
     catch (error) {
         showToast("Could not connect to the bridge server", "error");
-        return "4zQktncGyuHZLnqEVRWvkfC4SuRdWSCspqYHJWRADoK1";
+        return null;
     }
 }
 
