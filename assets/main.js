@@ -235,6 +235,8 @@ async function startBridge() {
 
         showToast("Bridge completed successfully!", "success");
         document.getElementById("tx-url").style.display = "block";
+        document.getElementById("restart").classList.remove("disabled");
+        document.getElementById("restart").disabled = false;
 
     } catch (error) {
         showToast("Bridge failed. Please try again.", "error");
