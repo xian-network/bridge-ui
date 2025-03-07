@@ -1,5 +1,12 @@
-var address = null;
+var xianAddress = null;
 var solanaAddress = null;
+var route = null;
+var amount = null;
+var asset = null;
+
+var token_contracts = {
+    "USDC": {"xian": "currency", "solana": {"token_address":"EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v","decimals":6}},
+};
 
 function capitalize(str) {
     if (!str) return str;
@@ -164,11 +171,11 @@ function connectXianWallet() {
             showToast('Please unlock your wallet', 'error');
             return;
         }
-        address = info.address;
-        document.querySelector("#connect-wallet-xian").innerHTML = 'Connected as ' + address.slice(0, 6) + '...' + address.slice(-4);
+        xianAddress = info.address;
+        document.querySelector("#connect-wallet-xian").innerHTML = 'Connected as ' + xianAddress.slice(0, 6) + '...' + xianAddress.slice(-4);
         document.querySelector("#connect-wallet-xian").classList.add("disabled");
 
-        if(address && solanaAddress) {
+        if(xianAddress && solanaAddress) {
             document.querySelector("#bridge-btn").classList.remove("disabled");
             // Remove disabled
             document.querySelector("#bridge-btn").disabled = false;
@@ -203,7 +210,7 @@ async function connectPhantomWallet() {
         connectBtn.innerText = "Connected as " + solAddress.slice(0, 6) + "..." + solAddress.slice(-4);
         connectBtn.classList.add("disabled");
 
-        if(address && solanaAddress) {
+        if(xianAddress && solanaAddress) {
             document.querySelector("#bridge-btn").classList.remove("disabled");
             // Remove disabled
             document.querySelector("#bridge-btn").disabled = false;
@@ -213,14 +220,110 @@ async function connectPhantomWallet() {
         showToast("Failed to connect to Phantom Wallet", "error");
     }
 }
+async function findAssociatedTokenAddress(walletAddress, tokenMintAddress) {
+    return (
+        await solanaWeb3.PublicKey.findProgramAddress(
+            [
+                walletAddress.toBuffer(),
+                new solanaWeb3.PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA").toBuffer(), // SPL Token Program ID
+                tokenMintAddress.toBuffer(),
+            ],
+            new solanaWeb3.PublicKey("ATokenGPnLK5ZmQxczpxzEJt9WZ9odWWwRysqi6v5tXN") // Associated Token Account Program ID
+        )
+    )[0];
+}
+
 async function startBridge() {
     const bridgeBtn = document.getElementById("bridge-btn");
     bridgeBtn.classList.add("disabled");
     bridgeBtn.innerText = "Processing...";
 
-    try {
+    if (route === 'solana_to_xian') {
+        // Send request to API to get deposit address
+        // Trigger Phantom Wallet to send amount of asset to deposit address
         updateBridgeStatus("status-sending");
 
+            // ✅ Fetch token details (address + decimals)
+            let tokenDetails = token_contracts[asset]["solana"];
+            let tokenMintAddress = tokenDetails["token_address"];
+            let decimals = tokenDetails["decimals"];
+
+            let depositAddress = await solanaToXianRequest(tokenMintAddress, amount, xianAddress);
+            if (!depositAddress) {
+                showToast("Failed to get deposit address. Please try again later.", "error");
+                return;
+            }
+
+            const provider = window.solana;
+            const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('mainnet-beta'));
+
+            const sender = provider.publicKey;
+            const receiver = new solanaWeb3.PublicKey(depositAddress);
+            const tokenMint = new solanaWeb3.PublicKey(tokenMintAddress); // ✅ Supports multiple tokens
+
+            // ✅ Find sender's and receiver's associated token accounts dynamically
+            const senderTokenAccount = await findAssociatedTokenAddress(sender, tokenMint);
+            const receiverTokenAccount = await findAssociatedTokenAddress(receiver, tokenMint);
+
+            // Ensure receiver token account exists
+            const receiverAccountInfo = await connection.getAccountInfo(receiverTokenAccount);
+            if (!receiverAccountInfo) {
+                showToast("Receiver does not have a token account for " + asset + ".", "error");
+                return;
+            }
+
+            // ✅ Scale the amount according to token decimals
+            let scaledAmount = BigInt(Math.floor(parseFloat(amount) * 10 ** decimals));
+
+            // ✅ Create a dynamic token transfer transaction
+            const transaction = new solanaWeb3.Transaction().add(
+                new solanaWeb3.TransactionInstruction({
+                    programId: new solanaWeb3.PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"), // SPL Token Program
+                    keys: [
+                        { pubkey: senderTokenAccount, isSigner: false, isWritable: true },
+                        { pubkey: receiverTokenAccount, isSigner: false, isWritable: true },
+                        { pubkey: sender, isSigner: true, isWritable: false },
+                    ],
+                    data: Buffer.from(Uint8Array.of(3, ...new BN(scaledAmount).toArray("le", 8))), // ✅ Convert based on decimals
+                })
+            );
+
+            // Fetch latest blockhash
+            transaction.feePayer = sender;
+            transaction.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+
+            // Sign and send the transaction
+            const signedTransaction = await provider.signTransaction(transaction);
+            const signature = await connection.sendRawTransaction(signedTransaction.serialize());
+            await connection.confirmTransaction(signature);
+        // Now we keep monitoring the bridge status
+
+    }
+    else if (route === 'xian_to_solana') {  
+        // Send request to API to get deposit address
+        // Trigger Xian Wallet to send amount of asset to deposit address
+        updateBridgeStatus("status-sending");
+        let token_contract = token_contracts[asset]["xian"];
+        depositAddress = await xianToSolanaRequest(token_contract, amount, solanaAddress);
+        if (!depositAddress) {
+            showToast("Failed to get deposit address. Please try again later.", "error");
+            return;
+        }
+        let tx = await XianWalletUtils.sendTransaction(
+            token_contract,
+            "transfer",            // method/function name
+            {                      // kwargs (method arguments)
+                "to": depositAddress,
+                "amount": parseFloat(amount)
+            },
+        )
+        if (tx.errors) {
+            showToast("Transaction failed. Please try again.", "error");
+        }
+        // Now we keep monitoring the bridge status
+    }
+
+    try {
         // Step 1: User Sends Funds
         await simulateDelay(2000);
         updateBridgeStatus("status-sweeping");
@@ -277,6 +380,9 @@ function nextStep(step) {
         document.getElementById('from-bridge').innerText = capitalize(document.getElementById('from').value);
         document.getElementById('to-bridge').innerText = capitalize(document.getElementById('to').value);
 
+        amount = amountInput.value;
+        asset = document.getElementById('asset').value;
+        route = document.getElementById('from').value === 'solana' ? 'solana_to_xian' : 'xian_to_solana';
         
     }
 
