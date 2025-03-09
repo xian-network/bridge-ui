@@ -94,7 +94,7 @@ async function monitoringStatusLoop(depositAddress, callback) {
             break;
         }
         // Wait 5 seconds, then check again
-        await new Promise(r => setTimeout(r, 5000));
+        await new Promise(r => setTimeout(r, 2000));
         status = await getStatus(depositAddress);
     }
 }
