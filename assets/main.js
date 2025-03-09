@@ -387,7 +387,7 @@ async function startBridge() {
                     // The bridging is done
                     updateBridgeStatus("status-done");
                     showToast("Bridge completed successfully!", "success");
-                    document.getElementById("tx-url").style.display = "block";
+                    //document.getElementById("tx-url").style.display = "block";
                     document.getElementById("restart").classList.remove("disabled");
                     document.getElementById("restart").disabled = false;
                     break;
@@ -453,7 +453,7 @@ async function startBridge() {
                 case "completed":
                     updateBridgeStatus("status-done");
                     showToast("Bridge completed successfully!", "success");
-                    document.getElementById("tx-url").style.display = "block";
+                    //document.getElementById("tx-url").style.display = "block";
                     document.getElementById("restart").classList.remove("disabled");
                     document.getElementById("restart").disabled = false;
                     break;
