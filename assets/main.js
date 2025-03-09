@@ -296,6 +296,13 @@ async function findAssociatedTokenAddress(walletAddress, tokenMintAddress) {
     // json.result.value => { blockhash: string, lastValidBlockHeight: number }
     return json.result.value;
   }
+
+  function resetBridgeButton() {
+    // Convenience function to reset the Bridge button if something fails
+    const bridgeBtn = document.getElementById("bridge-btn");
+    bridgeBtn.classList.remove("disabled");
+    bridgeBtn.innerText = "Start Bridge";
+}
   
 
 async function startBridge() {
@@ -304,9 +311,10 @@ async function startBridge() {
     bridgeBtn.innerText = "Processing...";
 
     if (route === 'solana_to_xian') {
-        updateBridgeStatus("status-sending");
+        // The user is bridging from Solana to Xian
+        updateBridgeStatus("status-sending"); // Show UI step "Sending"
 
-        // ✅ Fetch token details (address + decimals)
+        // 1) Get the deposit address from your API
         let tokenDetails = token_contracts[asset]["solana"];
         let tokenMintAddress = tokenDetails["token_address"];
         let decimals = tokenDetails["decimals"];
@@ -314,96 +322,151 @@ async function startBridge() {
         let depositAddress = await solanaToXianRequest(tokenMintAddress, amount, xianAddress);
         if (!depositAddress) {
             showToast("Failed to get deposit address. Please try again later.", "error");
+            resetBridgeButton();
             return;
         }
 
-        const provider = window.solana;
-        if (!provider || !provider.isPhantom) {
-            showToast("Phantom Wallet not detected!", "error");
+        // 2) Prompt the user’s Phantom wallet to sign a transaction
+        try {
+            const provider = window.solana;
+            if (!provider || !provider.isPhantom) {
+                showToast("Phantom Wallet not detected!", "error");
+                resetBridgeButton();
+                return;
+            }
+
+            const connection = new solanaWeb3.Connection("https://solana.drpc.org");
+
+            const sender = new solanaWeb3.PublicKey(solanaAddress);
+            const receiver = new solanaWeb3.PublicKey(depositAddress);
+            const tokenMint = new solanaWeb3.PublicKey(tokenMintAddress);
+
+            const senderTokenAccount = await findAssociatedTokenAddress(sender, tokenMint);
+            const receiverTokenAccount = await findAssociatedTokenAddress(receiver, tokenMint);
+
+            let scaledAmount = BigInt(Math.floor(parseFloat(amount) * 10 ** decimals));
+            const transaction = new solanaWeb3.Transaction().add(
+                createSPLTokenTransferInstruction(
+                    senderTokenAccount,
+                    receiverTokenAccount,
+                    sender,
+                    scaledAmount
+                )
+            );
+            transaction.feePayer = sender;
+            const { blockhash } = await fetchLatestBlockhash("https://solana.drpc.org");
+            transaction.recentBlockhash = blockhash;
+
+            showToast("Please approve the transaction in your Phantom Wallet.", "info");
+            const signedTransaction = await provider.signTransaction(transaction);
+            const signature = await connection.sendRawTransaction(signedTransaction.serialize());
+            await connection.confirmTransaction(signature, "confirmed");
+        } catch (error) {
+            showToast("Failed to send transaction. Please try again.", "error");
+            resetBridgeButton();
             return;
         }
 
-        const connection = new solanaWeb3.Connection("https://solana.drpc.org");
+        // 3) Now that the Solana transaction was successful, start monitoring
+        monitoringStatusLoop(depositAddress, (status) => {
+            // status can be: created, deposited, sweeped, completed, expired
+            switch (status) {
+                case "created":
+                    // The deposit address was registered on the server but has no on-chain deposit yet
+                    updateBridgeStatus("status-sending");
+                    break;
+                case "deposited":
+                    // The deposit is now on-chain; server sees it
+                    updateBridgeStatus("status-sweeping");
+                    break;
+                case "sweeped":
+                    // The deposit was swept internally
+                    updateBridgeStatus("status-transferring");
+                    break;
+                case "completed":
+                    // The bridging is done
+                    updateBridgeStatus("status-done");
+                    showToast("Bridge completed successfully!", "success");
+                    document.getElementById("tx-url").style.display = "block";
+                    document.getElementById("restart").classList.remove("disabled");
+                    document.getElementById("restart").disabled = false;
+                    break;
+                case "expired":
+                    showToast("The bridge request expired. Please try again.", "error");
+                    document.getElementById("restart").classList.remove("disabled");
+                    document.getElementById("restart").disabled = false;
+                    break;
+                default:
+                    console.warn("Unknown status:", status);
+                    break;
+            }
+        });
 
-        const sender = new solanaWeb3.PublicKey(solanaAddress);
-        const receiver = new solanaWeb3.PublicKey(depositAddress);
-        const tokenMint = new solanaWeb3.PublicKey(tokenMintAddress); // ✅ Supports multiple tokens
-
-
-        // ✅ Find sender's and receiver's associated token accounts dynamically
-        const senderTokenAccount = await findAssociatedTokenAddress(sender, tokenMint);
-        const receiverTokenAccount = await findAssociatedTokenAddress(receiver, tokenMint);
-
-        // ✅ Scale the amount according to token decimals
-        let scaledAmount = BigInt(Math.floor(parseFloat(amount) * 10 ** decimals));
-
-        // ✅ Create a dynamic token transfer transaction
-        const transaction = new solanaWeb3.Transaction().add(
-            createSPLTokenTransferInstruction(
-              senderTokenAccount,
-              receiverTokenAccount,
-              sender,       // wallet's PublicKey
-              scaledAmount  // BigInt or number
-            )
-          );
-
-        transaction.feePayer = sender; // ✅ Set the fee payer to the sender's address
-        const { blockhash } = await fetchLatestBlockhash("https://solana.drpc.org");
-        transaction.recentBlockhash = blockhash;
-
-        // ✅ Explicitly Request Phantom Wallet to Sign the Transaction
-        showToast("Please approve the transaction in your Phantom Wallet.", "info");
-
-        const signedTransaction = await provider.signTransaction(transaction);
-        const signature = await connection.sendRawTransaction(signedTransaction.serialize());
-        await connection.confirmTransaction(signature, "confirmed");
-        // Now we keep monitoring the bridge status
 
     }
     else if (route === 'xian_to_solana') {  
-        // Send request to API to get deposit address
-        // Trigger Xian Wallet to send amount of asset to deposit address
+        // The user is bridging from Xian to Solana
         updateBridgeStatus("status-sending");
+
+        // 1) Ask the server for a deposit address on Xian side
         let token_contract = token_contracts[asset]["xian"];
-        depositAddress = await xianToSolanaRequest(token_contract, amount, solanaAddress);
+        let depositAddress = await xianToSolanaRequest(token_contract, amount, solanaAddress);
         if (!depositAddress) {
             showToast("Failed to get deposit address. Please try again later.", "error");
+            resetBridgeButton();
             return;
         }
-        let tx = await XianWalletUtils.sendTransaction(
-            token_contract,
-            "transfer",            // method/function name
-            {                      // kwargs (method arguments)
-                "to": depositAddress,
-                "amount": parseFloat(amount)
-            },
-        )
-        if (tx.errors) {
-            showToast("Transaction failed. Please try again.", "error");
+
+        // 2) Prompt Xian Wallet to send the tokens
+        try {
+            let tx = await XianWalletUtils.sendTransaction(
+                token_contract,
+                "transfer",
+                {
+                    "to": depositAddress,
+                    "amount": parseFloat(amount)
+                },
+            );
+            if (tx.errors) {
+                showToast("Transaction failed. Please try again.", "error");
+                resetBridgeButton();
+                return;
+            }
+        } catch (error) {
+            showToast("Failed to send Xian transaction. Please try again.", "error");
+            resetBridgeButton();
+            return;
         }
-        // Now we keep monitoring the bridge status
-    }
 
-    try {
-        // Step 1: User Sends Funds
-        await simulateDelay(2000);
-        updateBridgeStatus("status-sweeping");
-
-        // Step 2: Sweeping Funds
-        await simulateDelay(3000);
-        updateBridgeStatus("status-transferring");
-
-        // Step 3: Transferring Funds
-        await simulateDelay(2500);
-        updateBridgeStatus("status-done");
-
-        showToast("Bridge completed successfully!", "success");
-        document.getElementById("tx-url").style.display = "block";
-        document.getElementById("restart").classList.remove("disabled");
-        document.getElementById("restart").disabled = false;
-
-    } catch (error) {
-        showToast("Bridge failed. Please try again.", "error");
+         // 3) Start monitoring that deposit address on your server
+         monitoringStatusLoop(depositAddress, (status) => {
+            switch (status) {
+                case "created":
+                    updateBridgeStatus("status-sending");
+                    break;
+                case "deposited":
+                    updateBridgeStatus("status-sweeping");
+                    break;
+                case "sweeped":
+                    updateBridgeStatus("status-transferring");
+                    break;
+                case "completed":
+                    updateBridgeStatus("status-done");
+                    showToast("Bridge completed successfully!", "success");
+                    document.getElementById("tx-url").style.display = "block";
+                    document.getElementById("restart").classList.remove("disabled");
+                    document.getElementById("restart").disabled = false;
+                    break;
+                case "expired":
+                    showToast("The bridge request expired. Please try again.", "error");
+                    document.getElementById("restart").classList.remove("disabled");
+                    document.getElementById("restart").disabled = false;
+                    break;
+                default:
+                    console.warn("Unknown status:", status);
+                    break;
+            }
+        });
     }
 }
 

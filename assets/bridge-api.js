@@ -52,3 +52,49 @@ async function xianToSolanaRequest(tokenContract, tokenAmount, solanaAddress) {
         return null;
     }
 }
+
+async function getStatus(depositAddress) {
+    try {
+        const response = await fetch(apiUrl + '/get_status', {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+            address: depositAddress
+            })
+        });
+        response_data = response.json();
+        if (response_data.status == true) {
+            return response_data.result; // Status of the deposit: created, deposited, sweeped, completed, expired
+        }
+        return null;
+    }
+    catch (error) {
+        showToast("Could not connect to the bridge server", "error");
+        return null;
+    }
+}
+
+async function monitoringStatusLoop(depositAddress, callback) {
+    let status = await getStatus(depositAddress);
+
+    // Poll indefinitely until we reach completed or expired
+    while (true) {
+        if (!status) {
+            // If we can’t fetch status at all, we break or handle an error
+            console.warn('Unable to fetch status for:', depositAddress);
+            return;
+        }
+        // Send this status up to the callback
+        callback(status);
+
+        if (status === 'completed' || status === 'expired') {
+            // We’re done monitoring
+            break;
+        }
+        // Wait 5 seconds, then check again
+        await new Promise(r => setTimeout(r, 5000));
+        status = await getStatus(depositAddress);
+    }
+}
