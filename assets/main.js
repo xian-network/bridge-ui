@@ -477,6 +477,11 @@ function updateBridgeStatus(stepId) {
 function simulateDelay(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
+// Close the announcement bar
+function closeAnnouncement() {
+    document.getElementById("announcement").style.display = "none";
+    document.body.style.paddingTop = "0"; // Reset padding when closed
+}
 
 
 
