@@ -298,9 +298,9 @@ async function findAssociatedTokenAddress(walletAddress, tokenMintAddress) {
 
   function resetBridgeButton() {
     // Convenience function to reset the Bridge button if something fails
-    const bridgeBtn = document.getElementById("bridge-btn");
+    const bridgeBtn = document.getElementById("restart");
     bridgeBtn.classList.remove("disabled");
-    bridgeBtn.innerText = "Start Bridge";
+    bridgeBtn.disabled = false;
 }
   
 
