@@ -53,9 +53,9 @@ async function xianToSolanaRequest(tokenContract, tokenAmount, solanaAddress) {
     }
 }
 
-async function getStatus(depositAddress) {
+async function getStatusSolana(depositAddress) {
     try {
-        const response = await fetch(apiUrl + '/get_status', {
+        const response = await fetch(apiUrl + '/solana_to_xian_status', {
             method: 'POST',
             headers: {
             'Content-Type': 'application/json'
@@ -76,8 +76,8 @@ async function getStatus(depositAddress) {
     }
 }
 
-async function monitoringStatusLoop(depositAddress, callback) {
-    let status = await getStatus(depositAddress);
+async function monitoringStatusLoopSolana(depositAddress, callback) {
+    let status = await getStatusSolana(depositAddress);
 
     // Poll indefinitely until we reach completed or expired
     while (true) {
@@ -95,6 +95,53 @@ async function monitoringStatusLoop(depositAddress, callback) {
         }
         // Wait 5 seconds, then check again
         await new Promise(r => setTimeout(r, 2000));
-        status = await getStatus(depositAddress);
+        status = await getStatusSolana(depositAddress);
+    }
+}
+
+
+async function getStatusXian(depositAddress) {
+    try {
+        const response = await fetch(apiUrl + '/xian_to_solana_status', {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+            address: depositAddress
+            })
+        });
+        response_data = response.json();
+        if (response_data.status == true) {
+            return response_data.result; // Status of the deposit: created, deposited, sweeped, completed, expired
+        }
+        return null;
+    }
+    catch (error) {
+        showToast("Could not connect to the bridge server", "error");
+        return null;
+    }
+}
+
+async function monitoringStatusLoopXian(depositAddress, callback) {
+    let status = await getStatusXian(depositAddress);
+
+    // Poll indefinitely until we reach completed or expired
+    while (true) {
+        if (!status) {
+            // If we can’t fetch status at all, we break or handle an error
+            console.warn('Unable to fetch status for:', depositAddress);
+            return;
+        }
+        // Send this status up to the callback
+        callback(status);
+
+        if (status === 'completed' || status === 'expired') {
+            // We’re done monitoring
+            break;
+        }
+        // Wait 5 seconds, then check again
+        await new Promise(r => setTimeout(r, 2000));
+        status = await getStatusXian(depositAddress);
     }
 }

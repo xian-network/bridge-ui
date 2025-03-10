@@ -368,7 +368,7 @@ async function startBridge() {
         }
 
         // 3) Now that the Solana transaction was successful, start monitoring
-        monitoringStatusLoop(depositAddress, (status) => {
+        monitoringStatusLoopSolana(depositAddress, (status) => {
             // status can be: created, deposited, sweeped, completed, expired
             switch (status) {
                 case "created":
@@ -439,7 +439,7 @@ async function startBridge() {
         }
 
          // 3) Start monitoring that deposit address on your server
-         monitoringStatusLoop(depositAddress, (status) => {
+         monitoringStatusLoopXian(depositAddress, (status) => {
             switch (status) {
                 case "created":
                     updateBridgeStatus("status-sending");
