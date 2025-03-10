@@ -189,9 +189,8 @@ async function connectPhantomWallet() {
     console.log("Attempting to connect to Phantom Wallet...");
 
     try {
-        if (!window.solana || !window.solana.isPhantom) {
-            showToast("Phantom Wallet not installed!", "error");
-            console.error("Phantom Wallet is not detected.");
+        if (!window.solana) {
+            showToast("No Solana wallet detected", "error");
             return;
         }
 
@@ -329,8 +328,8 @@ async function startBridge() {
         // 2) Prompt the user’s Phantom wallet to sign a transaction
         try {
             const provider = window.solana;
-            if (!provider || !provider.isPhantom) {
-                showToast("Phantom Wallet not detected!", "error");
+            if (!provider) {
+                showToast("No Solana wallet detected", "error");
                 resetBridgeButton();
                 return;
             }
